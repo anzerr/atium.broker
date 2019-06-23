@@ -48,7 +48,7 @@ class Task extends require('events') {
 
 	close() {
 		this.closed = true;
-		this.c.close();
+		this._client.close();
 		this.id = null;
 	}
 

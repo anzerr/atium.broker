@@ -24,13 +24,19 @@ class Core {
 							this.add(r[i]);
 						}
 					}
-					return res.status(200).send(`pushed task "${r.length}" in the pool.`);
+					return res.status(200).send(String(r.length));
 				}).catch((err) => {
 					res.status(500).send(err.toString());
 				});
 			}
 			if (req.url() === '/metric' && this.method() === 'GET') {
-				res.status(200).send('todo :)');
+				let m = {};
+				for (let i in this.pool) {
+					if (this.pool[i]) {
+						m[i] = this.pool[i].length || 0;
+					}
+				}
+				res.status(200).json(m);
 			}
 			return res.status(200).send('Ok');
 		}).then(() => {
@@ -75,6 +81,11 @@ class Core {
 			}
 		}
 		this.pool[task.name].push(task);
+	}
+
+	close() {
+		this.api.close();
+		this.socket.close();
 	}
 
 }

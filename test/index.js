@@ -17,7 +17,7 @@ let done = {task: false, worker: false, set: {}, max: 10, runs: 10, part: 1000};
 const send = (task) => {
 	return new Request(`http://${config.api}`).json(task).post('/add').then((res) => {
 		assert.equal(res.status(), 200);
-		assert.equal(res.body().toString(), `pushed task "${done.part}" in the pool.`);
+		assert.equal(res.body().toString(), `${done.part}`);
 	}).catch((e) => {
 		console.log(e);
 		process.exit(1);

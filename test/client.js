@@ -9,22 +9,6 @@ class TestTask extends core.Task {
 			type: 'default'
 		});
 		this.set = cd;
-		this.on('report', (report) => {
-			console.log(report);
-		});
-	}
-
-	register(r) {
-		return r
-			.input({
-				cat: '',
-				counts: 0,
-				test: {
-					name: '',
-					age: 0
-				}
-			})
-			.output('dead');
 	}
 
 	run(task) {

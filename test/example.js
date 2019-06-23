@@ -1,16 +1,5 @@
 
-### `Intro`
-In memory message broker without result tracking. Useful in dead end tasks.
-
-#### `Install`
-```
-npm install --save git+https://git@github.com/anzerr/hive.socket.git
-```
-
-Example of a task
-``` javascript
-
-const {Task, Server} = require('hive.socket'),
+const {Task, Server} = require('../index.js'),
 	Request = require('request.libary');
 
 class TestTask extends Task {
@@ -41,20 +30,20 @@ class TestTask extends Task {
 	};
 
 	let s = new Server(config); // server
-	let t = new TestTask(config); // task client
+	let t = new TestTask(config);
 
 	let out = [];
 	for (let x = 0; x < 100; x++) {
 		out.push({
 			name: config.tasks[0],
-			payload: { // task payload that will be sent to worker
+			payload: {
 				stuff: x
 			}
 		});
 	}
 	Promise.all([
-		new Promise((resolve) => t.on('connect', () => resolve())), // wait for client to connect
-		send(out) // send out task creation
+		new Promise((resolve) => t.on('connect', () => resolve())),
+		send(out)
 	]).then(() => {
 		console.log('setup done');
 		setTimeout(() => {
@@ -63,6 +52,3 @@ class TestTask extends Task {
 		}, 1000);
 	});
 })();
-
-
-````
