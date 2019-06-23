@@ -1,0 +1,36 @@
+{
+	"name": "hive.socket",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "node test/index.js"
+	},
+	"keywords": [],
+	"author": "anzerr",
+	"license": "MIT",
+	"devDependencies": {
+		"eslint": "5.11.1",
+		"request.libary": "git+https://git@github.com/anzerr/request.libary.git",
+		"eslint-config-basic": "git+https://git@github.com/anzerr/eslintrc.git"
+	},
+	"eslintConfig": {
+		"extends": "eslint-config-basic"
+	},
+	"dependencies": {
+		"http.server": "git+https://git@github.com/anzerr/http.server.git",
+		"net.socket": "git+https://git@github.com/anzerr/net.socket.git"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:anzerr/hive.socket.git"
+	},
+	"engines": {
+		"node": ">= 0.10.0"
+	},
+	"types": "index.d.ts",
+	"bugs": {
+		"url": "https://github.com/anzerr/hive.socket/issues"
+	},
+	"homepage": "https://github.com/anzerr/hive.socket#readme"
+}
