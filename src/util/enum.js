@@ -1,15 +1,20 @@
 
 let str = {
 		'/who': 1,
+
 		'/ping': 2,
 		'/pong': 3,
+
 		'/lock': 4,
 		'/unlock': 5,
+
 		'/tasks': 6,
 		'/relay': 8,
 		'/cancel': 9,
 		'/add': 10,
-		'/run': 11
+		'/run': 11,
+		'/event': 12,
+		'/next': 13
 	}, code = {};
 
 for (let i in str) {

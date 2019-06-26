@@ -12,14 +12,16 @@ const config = {
 	log: false
 };
 
-let done = {task: false, worker: false, set: {}, max: 10, runs: 10, part: 1000};
+let done = {task: false, worker: false, set: {}, max: 10, runs: 10, part: 10, tasks: 10};
 
 const send = (task) => {
+	let last = '';
 	return new Request(`http://${config.api}`).json(task).post('/add').then((res) => {
+		last = res.body().toString();
 		assert.equal(res.status(), 200);
-		assert.equal(res.body().toString(), `${done.part}`);
+		assert.equal(last, `${done.part * done.runs}`);
 	}).catch((e) => {
-		console.log(e);
+		console.log(e, last);
 		process.exit(1);
 	});
 };
@@ -34,15 +36,19 @@ for (let i = 0; i < done.runs; i++) {
 	}
 	((n) => {
 		wait[i % 10] = wait[i % 10].then(() => {
-			let out = [];
+			let out = [], tasks = [];
 			for (let x = 0; x < done.part; x++) {
-				out.push({
-					name: config.tasks[0],
-					payload: {
-						stuff: n + x
-					}
-				});
+				for (let v = 0; v < done.tasks; v++) {
+					tasks.push({
+						task: config.tasks[0],
+						input: {
+							stuff: n + (x * done.tasks) + v
+						}
+					});
+				}
+				out.push({tasks: tasks});
 			}
+			console.log(out);
 			return send(out);
 		});
 	})((i * done.part) + 1);
@@ -50,7 +56,7 @@ for (let i = 0; i < done.runs; i++) {
 
 let start = process.hrtime();
 setInterval(() => {
-	let missing = 0, max = done.runs * done.part;
+	let missing = 0, max = done.runs * done.part * done.tasks;
 	for (let i = 0; i < max; i++) {
 		if (!done.set[i + 1]) {
 			missing++;

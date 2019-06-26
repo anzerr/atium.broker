@@ -16,7 +16,13 @@ class Task extends require('events') {
 		}).on('run', (task) => {
 			this.lock()
 				.then(() => this.run(task))
-				.then(() => this.unlock());
+				.then((res) => {
+					let wait = [this.unlock()];
+					if (task.next) {
+						wait.push(this._client.send('/next', {next: task.next, input: res}));
+					}
+					return Promise.all(wait);
+				});
 		}).on('close', () => {
 			if (!this.closed) {
 				this._client.reconnect();

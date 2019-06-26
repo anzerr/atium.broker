@@ -13,7 +13,7 @@ class TestTask extends core.Task {
 
 	run(task) {
 		this.set(task.stuff);
-		return Promise.resolve();
+		return Promise.resolve({dave: task.stuff});
 	}
 
 }

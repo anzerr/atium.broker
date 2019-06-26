@@ -19,7 +19,9 @@
 	},
 	"dependencies": {
 		"http.server": "git+https://git@github.com/anzerr/http.server.git",
-		"net.socket": "git+https://git@github.com/anzerr/net.socket.git"
+		"net.socket": "git+https://git@github.com/anzerr/net.socket.git",
+		"type.util": "git+https://git@github.com/anzerr/type.util.git",
+		"unique.util": "git+https://git@github.com/anzerr/unique.util.git"
 	},
 	"repository": {
 		"type": "git",

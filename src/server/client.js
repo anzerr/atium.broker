@@ -17,7 +17,7 @@ class Client {
 		this.socket = socket;
 		this.key = socket.id();
 		this.isAlive = true;
-		this.tasks = [];
+		this.tasks = []; // task it handles
 		this.socket.on('close', () => {
 			this.destory();
 		}).on('error', (err) => console.log(err));
@@ -63,15 +63,21 @@ class Client {
 			this.tasks = (Array.isArray(payload.data) ? payload.data : []).sort();
 			return this.pull();
 		}
-		if (payload.action === '/relay') {
-			for (let i in this.core.client) {
-				if (this.core.client[i]) {
-					this.core.client[i].send(payload.data.action, payload.data.data);
-				}
-			}
-			return;
+		if (payload.action === '/next') {
+			return this.next(payload.data.next, payload.data.input);
+		}
+		if (payload.action === '/event') {
+			return; // event system with sub and unsub needs to be added
 		}
 		return this.destory('invalid action');
+	}
+
+	sendAll(action, data) {
+		for (let i in this.core.client) {
+			if (this.core.client[i]) {
+				this.core.client[i].send(action, data);
+			}
+		}
 	}
 
 	send(a, d) {
@@ -96,11 +102,19 @@ class Client {
 		return this.isAlive && !this.isLocked;
 	}
 
+	next(id, input) {
+		if (this.nextPool[id]) {
+			this.nextPool[id].input = {...this.nextPool[id].input, ...input};
+			this.core.addTask(this.nextPool[id]);
+			this.nextPool[id] = null;
+		}
+	}
+
 	pull() {
 		if (!this.isLocked) {
 			let task = this.getTask();
 			if (task) {
-				this.send('/run', task.payload);
+				this.send('/run', task.input);
 			}
 		}
 	}
