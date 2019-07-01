@@ -1,5 +1,6 @@
 
-const ENUM = require('./enum.js');
+const ENUM = require('./enum.js'),
+	packet = require('./packet/index.js');
 
 class Packet {
 
@@ -9,7 +10,11 @@ class Packet {
 		if (Buffer.isBuffer(a)) {
 			let json = null;
 			if (!ENUM.CODE[a[0]]) {
-				throw new Error('not a valid code are we using the same protocol?');
+				throw new Error(`not a valid code "${a[0]}" are we using the same protocol?`);
+			}
+			if (packet.parse[a[0]]) {
+				let p = packet.parse[a[0]](a);
+				return p;
 			}
 			if (a.length > 1) {
 				json = JSON.parse(a.slice(1, a.length).toString());
@@ -25,9 +30,14 @@ class Packet {
 
 	stringify(a) {
 		if (a.action) {
+			let action = ENUM.ACTION[a.action] || 0;
+			if (packet.stringify[action]) {
+				let p = packet.stringify[action](a.data);
+				return p;
+			}
 			if (a.data) {
 				let json = JSON.stringify(a.data), buf = Buffer.alloc(json.length + 1);
-				buf[0] = ENUM.ACTION[a.action] || 0;
+				buf[0] = action;
 				buf.write(json, 1);
 				return buf;
 			}
