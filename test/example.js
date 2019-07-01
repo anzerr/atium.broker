@@ -9,10 +9,12 @@ class TestTask extends Task {
 			...c,
 			type: 'default'
 		});
+		this._ran = 0;
 	}
 
 	run(task) {
-		console.log(task);
+		this._ran++;
+		console.log(this._ran, task);
 		return Promise.resolve();
 	}
 
@@ -35,10 +37,20 @@ class TestTask extends Task {
 	let out = [];
 	for (let x = 0; x < 100; x++) {
 		out.push({
-			name: config.tasks[0],
-			payload: {
-				stuff: x
-			}
+			tasks: [
+				{
+					task: config.tasks[0],
+					input: {
+						stuff: x
+					}
+				},
+				{
+					task: config.tasks[0],
+					input: {
+						stuff: x + 100
+					}
+				}
+			]
 		});
 	}
 	Promise.all([

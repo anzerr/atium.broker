@@ -12,14 +12,22 @@ const config = {
 	log: false
 };
 
-let done = {task: false, worker: false, set: {}, max: 10, runs: 10, part: 10, tasks: 10};
+let done = {task: false, worker: false, set: {}, max: 10, runs: 10, part: 100, tasks: 10};
+
+const metric = () => {
+	return new Request(`http://${config.api}`).get('/metric').then((res) => {
+		console.log(res.body().toString());
+	}).catch((e) => {
+		console.log(e);
+	});
+};
 
 const send = (task) => {
 	let last = '';
 	return new Request(`http://${config.api}`).json(task).post('/add').then((res) => {
 		last = res.body().toString();
 		assert.equal(res.status(), 200);
-		assert.equal(last, `${done.part * done.runs}`);
+		assert.equal(last, `${done.part * done.tasks}`);
 	}).catch((e) => {
 		console.log(e, last);
 		process.exit(1);
@@ -36,8 +44,9 @@ for (let i = 0; i < done.runs; i++) {
 	}
 	((n) => {
 		wait[i % 10] = wait[i % 10].then(() => {
-			let out = [], tasks = [];
+			let out = [];
 			for (let x = 0; x < done.part; x++) {
+				let tasks = [];
 				for (let v = 0; v < done.tasks; v++) {
 					tasks.push({
 						task: config.tasks[0],
@@ -48,10 +57,10 @@ for (let i = 0; i < done.runs; i++) {
 				}
 				out.push({tasks: tasks});
 			}
-			console.log(out);
+			// console.log(n, out);
 			return send(out);
 		});
-	})((i * done.part) + 1);
+	})((i * done.part * done.tasks) + 1);
 }
 
 let start = process.hrtime();
@@ -63,10 +72,11 @@ setInterval(() => {
 		}
 	}
 	if (missing !== 0) {
+		// metric();
 		return console.log('missing tasks', missing);
 	}
 	if (done.task && done.worker) {
-		let t = time(process.hrtime(start));
+		let t = time.diff(process.hrtime(start));
 		console.log('done all works', (t / 1e9), 'sec', (max / (t / 1e9)).toFixed(3));
 		process.exit(0);
 	} else {
@@ -74,19 +84,20 @@ setInterval(() => {
 	}
 }, 100);
 
-let worker = [];
-for (let i = 0; i < done.max; i++) {
-	worker.push(new Promise((resolve) => client(config, (n) => done.set[n] = true).on('connect', () => resolve())));
-}
-Promise.all(worker).then(() => {
-	done.worker = true;
-	console.log('workers done');
-});
-
 console.log('sending tasks');
 Promise.all(wait).then(() => {
 	done.task = true;
 	console.log('sent tasks');
+}).then(() => {
+	let worker = [];
+	for (let i = 0; i < done.max; i++) {
+		worker.push(new Promise((resolve) => client(config, (n) => done.set[n] = true).on('connect', () => resolve())));
+	}
+	return Promise.all(worker);
+}).then(() => {
+	done.worker = true;
+	console.log('workers done');
+	start = process.hrtime();
 }).then(() => {
 	console.log('setup done');
 }).catch((e) => console.log('e2', e));

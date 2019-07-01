@@ -1,6 +1,13 @@
 
 ### `Intro`
-In memory message broker without result tracking. Useful in dead end tasks.
+Light weight in memory message broker. There are no stat logging for task. Tasks are run
+in the order they arrive/complete. There is still work that can be done at the moment it handles around 1k tasks a sec.
+
+#### `How does it work?`
+- A worker connects to the broker.
+- He tells the broker he can work.
+- The server pushes a task to the worker it sends a acknowledge back.
+- Runs the task and sends back the output if there's a next/chained task.
 
 #### `Install`
 ```
@@ -46,10 +53,20 @@ class TestTask extends Task {
 	let out = [];
 	for (let x = 0; x < 100; x++) {
 		out.push({
-			name: config.tasks[0],
-			payload: { // task payload that will be sent to worker
-				stuff: x
-			}
+			tasks: [ // chain tasks
+				{
+					task: config.tasks[0], // run this task first
+					input: {
+						stuff: x
+					}
+				},
+				{
+					task: config.tasks[0], // run this task second
+					input: {
+						stuff: x + 100
+					}
+				}
+			]
 		});
 	}
 	Promise.all([
@@ -57,7 +74,7 @@ class TestTask extends Task {
 		send(out) // send out task creation
 	]).then(() => {
 		console.log('setup done');
-		setTimeout(() => {
+		setTimeout(() => { // dirty close
 			t.close();
 			s.close();
 		}, 1000);

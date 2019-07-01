@@ -5,7 +5,8 @@ const net = require('net.socket'),
 	packet = require('./util/packet.js'),
 	{log} = require('./util/log.js'),
 	is = require('type.util'),
-	key = require('unique.util'),
+	Pool = require('./server/pool.js'),
+	ENUM = require('./util/enum.js'),
 	Api = require('./server/api.js');
 
 class Core {
@@ -22,8 +23,10 @@ class Core {
 			console.log('started http server');
 		});
 
-		this.nextPool = {};
-		this.pool = {};
+		this.pool = {
+			live: new Pool(),
+			next: new Pool()
+		};
 		this.client = {};
 		this.socket.on('open', () => {
 			console.log('tcp server started with config', config);
@@ -48,6 +51,7 @@ class Core {
 	}
 
 	id() {
+		// return `${Math.random().toString(36).substr(2)}:${this._id++}`;
 		return this._id++;
 	}
 
@@ -60,13 +64,10 @@ class Core {
 			let t = workload.tasks[i];
 			if (t.task && t.input) {
 				t.key = this.id();
-				t.timeout = Date.now() + (t.timeout || (1000 * 60 * 5));
+				t.timeout = (t.timeout || ENUM.TIMEOUT);
 			} else {
 				console.log('failed missing something', t);
 				return false;
-			}
-			if (!this.pool[t.task]) {
-				this.pool[t.task] = [];
 			}
 		}
 		for (let i = 0; i < workload.tasks.length; i++) {
@@ -76,7 +77,7 @@ class Core {
 				workload.tasks[i].next = null;
 			}
 			if (i !== 0) {
-				this.nextPool[workload.tasks[i].key] = workload.tasks[i];
+				this.pool.next.push(workload.tasks[i].key, workload.tasks[i]);
 			}
 		}
 		this.addTask(workload.tasks[0]);
@@ -87,15 +88,21 @@ class Core {
 		for (let i in this.client) {
 			if (this.client[i].valid()) {
 				this.client[i].isLocked = true;
-				return this.client[i].send('/run', task.input);
+				return this.client[i].runTask(task);
 			}
 		}
-		this.pool[task.task].push(task);
+		this.pool.live.push(task.task, task);
 	}
 
 	close() {
+		for (let i in this.client) {
+			this.client[i].dead = true;
+		}
 		this.api.close();
 		this.socket.close();
+		for (let i in this.pool) {
+			this.pool[i].close();
+		}
 	}
 
 }

@@ -16,6 +16,10 @@ class Client {
 		this.core = core;
 		this.socket = socket;
 		this.key = socket.id();
+		this.polled = {
+			data: {},
+			tick: 1
+		};
 		this.isAlive = true;
 		this.tasks = []; // task it handles
 		this.socket.on('close', () => {
@@ -35,39 +39,63 @@ class Client {
 	}
 
 	action(payload) {
-		if (payload.action === '/who' && !this.id) {
-			this.id = this.type.get(payload.data.type, this.key);
-			return this.send('/who', this.id);
-		}
-		if (payload.action === '/pong') {
-			this.isAlive = true;
-			return;
-		}
-		if (payload.action === '/lock') {
-			this.isLocked = true;
-			return;
-		}
-		if (payload.action === '/unlock') {
-			if (this.isLocked) {
-				this.isLocked = false;
-				this.pull();
-			} else {
-				this.isLocked = false;
+		try {
+			if (payload.action === '/who' && !this.id) {
+				this.id = this.type.get(payload.data.type, this.key);
+				return this.send('/who', this.id);
 			}
-			return;
-		}
-		if (payload.action === '/add') {
-			return this.core.add(payload.data);
-		}
-		if (payload.action === '/tasks') {
-			this.tasks = (Array.isArray(payload.data) ? payload.data : []).sort();
-			return this.pull();
-		}
-		if (payload.action === '/next') {
-			return this.next(payload.data.next, payload.data.input);
-		}
-		if (payload.action === '/event') {
-			return; // event system with sub and unsub needs to be added
+			if (payload.action === '/pong') {
+				this.isAlive = true;
+				return;
+			}
+			if (payload.action === '/lock') {
+				this.isLocked = true;
+				return;
+			}
+			if (payload.action === '/unlock') {
+				if (this.isLocked) {
+					this.isLocked = false;
+					this.pull();
+				} else {
+					this.isLocked = false;
+				}
+				return;
+			}
+			if (payload.action === '/add') {
+				return this.core.add(payload.data);
+			}
+			if (payload.action === '/tasks') {
+				this.tasks = (Array.isArray(payload.data) ? payload.data : []).sort();
+				return this.pull();
+			}
+			if (payload.action === '/next') {
+				return this.next(payload.data.next, payload.data.input);
+			}
+			if (payload.action === '/ok') {
+				if (this.polled.data[payload.data.key]) {
+					clearTimeout(this.polled.data[payload.data.key][1]);
+					this.polled.data[payload.data.key] = null;
+				}
+
+				if (this.polled.tick % 1000 === 0) {
+					let c = {};
+					for (let i in this.polled.data) {
+						if (this.polled.data[i]) {
+							c[i] = this.polled.data[i];
+						}
+					}
+					this.polled.data = c;
+					this.polled.tick = 1;
+				} else {
+					this.polled.tick += 1;
+				}
+				return;
+			}
+			if (payload.action === '/event') {
+				return; // event system with sub and unsub needs to be added
+			}
+		} catch(e) {
+			console.log('action failed', e);
 		}
 		return this.destory('invalid action');
 	}
@@ -90,9 +118,9 @@ class Client {
 
 	getTask() {
 		for (let x in this.tasks) {
-			let t = this.tasks[x];
-			if (this.pool[t] && this.pool[t].length > 0) {
-				return this.pool[t].splice(0, 1)[0] || null;
+			let t = this.pool.live.pull(this.tasks[x]);
+			if (t) {
+				return t;
 			}
 		}
 		return null;
@@ -103,18 +131,33 @@ class Client {
 	}
 
 	next(id, input) {
-		if (this.nextPool[id]) {
-			this.nextPool[id].input = {...this.nextPool[id].input, ...input};
-			this.core.addTask(this.nextPool[id]);
-			this.nextPool[id] = null;
+		let t = this.pool.next.pull(id);
+		if (t) {
+			t.input = {...t.input, ...input};
+			this.core.addTask(t);
 		}
+	}
+
+	runTask(task) {
+		this.polled.data[task.key] = [
+			task,
+			setTimeout(() => {
+				task.key = this.core.id();
+				this.core.addTask(task);
+			}, task.timeout)
+		];
+		let payload = {key: task.key, input: task.input};
+		if (task.next) {
+			payload.next = task.next;
+		}
+		return this.send('/run', payload);
 	}
 
 	pull() {
 		if (!this.isLocked) {
 			let task = this.getTask();
 			if (task) {
-				this.send('/run', task.input);
+				return this.runTask(task);
 			}
 		}
 	}
@@ -124,8 +167,16 @@ class Client {
 			await this.send('error', e);
 		}
 		console.log('close', this.key);
+		if (!this.dead) {
+			this.type.free(this.id);
+			for (let i in this.polled.data) {
+				let task = this.polled.data[i][0];
+				task.key = this.core.id();
+				this.core.addTask(task);
+				clearTimeout(this.polled[i][1]);
+			}
+		}
 		this.dead = true;
-		this.type.free(this.id);
 		this.core.client[this.key] = null;
 		this.socket.close();
 		clearInterval(this.health);

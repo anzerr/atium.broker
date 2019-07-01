@@ -14,8 +14,9 @@ class Task extends require('events') {
 			this.who = who;
 			this.emit('connect');
 		}).on('run', (task) => {
+			this._client.send('/ok', {key: task.key});
 			this.lock()
-				.then(() => this.run(task))
+				.then(() => this.run(task.input))
 				.then((res) => {
 					let wait = [this.unlock()];
 					if (task.next) {

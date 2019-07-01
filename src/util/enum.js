@@ -14,7 +14,8 @@ let str = {
 		'/add': 10,
 		'/run': 11,
 		'/event': 12,
-		'/next': 13
+		'/next': 13,
+		'/ok': 14
 	}, code = {};
 
 for (let i in str) {
@@ -23,5 +24,12 @@ for (let i in str) {
 
 module.exports = {
 	ACTION: str,
-	CODE: code
+	CODE: code,
+
+	POOL: {
+		LIFE: 1000 * 60 * 10,
+		TICK: 1000 * 20,
+		THINK: 1000 * 60 * 30
+	},
+	TIMEOUT: 1000 * 60 * 1,
 };
