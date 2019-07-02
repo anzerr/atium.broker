@@ -7,7 +7,8 @@ const net = require('net.socket'),
 	is = require('type.util'),
 	Pool = require('./server/pool.js'),
 	ENUM = require('./util/enum.js'),
-	Api = require('./server/api.js');
+	Api = require('./server/api.js'),
+	Channel = require('./server/channel.js');
 
 class Core {
 
@@ -15,6 +16,7 @@ class Core {
 		console.log('creating server', config);
 		this.socket = new net.Server(config.socket);
 		this.type = new Type();
+
 		this.api = new Api({
 			host: config.api,
 			core: this
@@ -22,6 +24,8 @@ class Core {
 		this.api.create().then(() => {
 			console.log('started http server');
 		});
+
+		this.channel = new Channel();
 
 		this.pool = {
 			live: new Pool(),
@@ -86,7 +90,7 @@ class Core {
 
 	addTask(task) {
 		for (let i in this.client) {
-			if (this.client[i].valid()) {
+			if (this.client[i].valid(task.task)) {
 				this.client[i].isLocked = true;
 				return this.client[i].runTask(task);
 			}

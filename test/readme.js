@@ -1,23 +1,5 @@
 
-### `Intro`
-Light weight in memory message broker. There are no stat logging for task. Tasks are run
-in the order they arrive/complete. There is still work that can be done at the moment it handles around 7k tasks a sec.
-
-#### `How does it work?`
-- A worker connects to the broker.
-- He tells the broker he can work.
-- The server pushes a task to the worker it sends a acknowledge back.
-- Runs the task and sends back the output if there's a next/chained task.
-
-#### `Install`
-```
-npm install --save git+https://git@github.com/anzerr/hive.socket.git
-```
-
-Example of a task
-``` javascript
-
-const {Task, Server} = require('hive.socket'),
+const {Task, Server} = require('../index.js'),
 	Request = require('request.libary');
 
 class TestTask extends Task {
@@ -105,5 +87,3 @@ class TestTask extends Task {
 		});
 	});
 })();
-
-````

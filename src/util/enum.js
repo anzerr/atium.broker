@@ -15,7 +15,9 @@ let str = {
 		'/run': 11,
 		'/event': 12,
 		'/next': 13,
-		'/ok': 14
+		'/ok': 14,
+		'/sub': 15,
+		'/unsub': 16
 	}, code = {};
 
 for (let i in str) {

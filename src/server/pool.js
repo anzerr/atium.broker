@@ -58,7 +58,7 @@ class Pool {
 		return this.tick();
 	}
 
-	stop() {
+	close() {
 		clearInterval(this._think);
 	}
 

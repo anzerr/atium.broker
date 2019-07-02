@@ -10,11 +10,15 @@ class TestTask extends Task {
 			type: 'default'
 		});
 		this._ran = 0;
+		this.on('event:task_done', (msg) => console.log('task done', this.who, msg));
+		this.on('event:task_other', (msg) => console.log('task_other', this.who, msg));
 	}
 
 	run(task) {
 		this._ran++;
-		console.log(this._ran, task);
+		console.log(this._ran, this.who, task);
+		this.event('task_done', {task: task});
+		this.event('task_other', {task: task});
 		return Promise.resolve();
 	}
 
@@ -33,6 +37,22 @@ class TestTask extends Task {
 
 	let s = new Server(config); // server
 	let t = new TestTask(config);
+	let e = new TestTask({
+		socket: config.socket,
+		api: config.api,
+		tasks: []
+	});
+	e.on('connect', () => {
+		e.subscribe('task_done');
+	});
+	let e1 = new TestTask({
+		socket: config.socket,
+		api: config.api,
+		tasks: []
+	});
+	e1.on('connect', () => {
+		e1.subscribe('task_other');
+	});
 
 	let out = [];
 	for (let x = 0; x < 100; x++) {
@@ -60,6 +80,8 @@ class TestTask extends Task {
 		console.log('setup done');
 		setTimeout(() => {
 			t.close();
+			e.close();
+			e1.close();
 			s.close();
 		}, 1000);
 	});

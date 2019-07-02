@@ -28,6 +28,8 @@ class Task extends require('events') {
 			if (!this.closed) {
 				this._client.reconnect();
 			}
+		}).on('event', (data) => {
+			return this.emit(`event:${data.channel}`, data.message);
 		}).on('log', (l) => this.log(l)).on('error', (e) => this.log(['error', e]));
 	}
 
@@ -41,6 +43,26 @@ class Task extends require('events') {
 		this.log(['lock']);
 		this._lock = true;
 		return this._client.lock();
+	}
+
+	sub(...arg) {
+		return this._client.sub(...arg);
+	}
+
+	subscribe(...arg) {
+		return this._client.subscribe(...arg);
+	}
+
+	unsub(...arg) {
+		return this._client.unsub(...arg);
+	}
+
+	unsubscribe(...arg) {
+		return this._client.unsubscribe(...arg);
+	}
+
+	event(...arg) {
+		return this._client.event(...arg);
 	}
 
 	log(l) {

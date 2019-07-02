@@ -50,8 +50,8 @@ class Client extends require('events') {
 					if (payload.action === '/run') {
 						return this.emit('run', payload.data);
 					}
-					if (payload.action === '/cancel') {
-						return this.emit('cancel', payload.data);
+					if (payload.action === '/event') {
+						return this.emit('event', payload.data);
 					}
 					this.emit('error', `action not supported "${payload.action}"`);
 				} catch(e) {
@@ -70,6 +70,26 @@ class Client extends require('events') {
 		} catch(e) {
 			return Promise.reject(e);
 		}
+	}
+
+	sub(channel) {
+		return this.send('/sub', {channel: channel});
+	}
+
+	subscribe(...arg) {
+		return this.sub(...arg);
+	}
+
+	unsub(channel) {
+		this.send('/unsub', {channel: channel});
+	}
+
+	unsubscribe(...arg) {
+		return this.unsub(...arg);
+	}
+
+	event(channel, message) {
+		return this.send('/event', {channel: channel, message: message});
 	}
 
 	lock() {

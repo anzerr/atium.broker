@@ -20,6 +20,8 @@ class Client {
 			data: {},
 			tick: 1
 		};
+		this.taskMap = {};
+		this.channel = {};
 		this.isAlive = true;
 		this.tasks = []; // task it handles
 		this.socket.on('close', () => {
@@ -66,6 +68,11 @@ class Client {
 			}
 			if (payload.action === '/tasks') {
 				this.tasks = (Array.isArray(payload.data) ? payload.data : []).sort();
+				let map = {};
+				for (let i in this.tasks) {
+					map[this.tasks[i]] = true;
+				}
+				this.taskMap = map;
 				return this.pull();
 			}
 			if (payload.action === '/next') {
@@ -91,8 +98,18 @@ class Client {
 				}
 				return;
 			}
-			if (payload.action === '/event') {
-				return; // event system with sub and unsub needs to be added
+			if (payload.action === '/event' && payload.data.channel && payload.data.message) {
+				return this.core.channel.send(payload.data.channel, payload.data.message, this);
+			}
+			if (payload.action === '/sub') {
+				this.channel[payload.data.channel] = true;
+				return this.core.channel.sub(payload.data.channel, this);
+			}
+			if (payload.action === '/unsub') {
+				if (this.channel[payload.data.channel]) {
+					this.channel[payload.data.channel] = false;
+				}
+				return this.core.channel.unsub(payload.data.channel, this);
 			}
 		} catch(e) {
 			console.log('action failed', e);
@@ -126,8 +143,8 @@ class Client {
 		return null;
 	}
 
-	valid() {
-		return this.isAlive && !this.isLocked;
+	valid(task) {
+		return this.isAlive && !this.isLocked && this.taskMap[task];
 	}
 
 	next(id, input) {
@@ -174,6 +191,11 @@ class Client {
 				task.key = this.core.id();
 				this.core.addTask(task);
 				clearTimeout(this.polled[i][1]);
+			}
+		}
+		for (let i in this.channel) {
+			if (this.channel[i]) {
+				this.core.channel.unsub(i, this);
 			}
 		}
 		this.dead = true;
