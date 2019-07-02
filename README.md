@@ -3,6 +3,14 @@
 Light weight in memory message broker. There are no stat logging for task. Tasks are run
 in the order they arrive/complete. There is still work that can be done at the moment it handles around 7k tasks a sec.
 
+#### `Features`
+- atomic task execution
+- guarantee task being pooled
+- sub/unsub event message system
+- light weight in memory storage
+- task chaining
+- zero dependencies
+
 #### `How does it work?`
 - A worker connects to the broker.
 - He tells the broker he can work.
