@@ -19,13 +19,13 @@ in the order they arrive/complete. There is still work that can be done at the m
 
 #### `Install`
 ```
-npm install --save git+https://git@github.com/anzerr/hive.socket.git
+npm install --save git+https://git@github.com/anzerr/atium.socket.git
 ```
 
 Example of a task
 ``` javascript
 
-const {Task, Server} = require('hive.socket'),
+const {Task, Server} = require('atium.socket'),
 	Request = require('request.libary');
 
 class TestTask extends Task {
