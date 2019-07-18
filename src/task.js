@@ -1,5 +1,6 @@
 
-const Client = require('./client.js');
+const Client = require('./client.js'),
+	logger = require('./util/logger.js');
 
 class Task extends require('events') {
 
@@ -67,7 +68,7 @@ class Task extends require('events') {
 
 	log(l) {
 		if (this.config.log) {
-			return console.log(`TASK - ${Date.now()} :`, ...l);
+			return logger.log(...l);
 		}
 	}
 

@@ -1,7 +1,7 @@
 
 ### `Intro`
 Light weight in memory message broker. There are no stat logging for task. Tasks are run
-in the order they arrive/complete. There is still work that can be done at the moment it handles around 7k tasks a sec.
+in the order they arrive/complete. There is still work that can be done at the moment it handles around 10k tasks a sec.
 
 #### `Features`
 - atomic task execution
@@ -19,13 +19,13 @@ in the order they arrive/complete. There is still work that can be done at the m
 
 #### `Install`
 ```
-npm install --save git+https://git@github.com/anzerr/atium.socket.git
+npm install --save git+https://git@github.com/anzerr/atium.broker.git
 ```
 
 Example of a task
 ``` javascript
 
-const {Task, Server} = require('atium.socket'),
+const {Task, Server} = require('atium.broker'),
 	Request = require('request.libary');
 
 class TestTask extends Task {
@@ -91,7 +91,7 @@ class TestTask extends Task {
 	}
 	e.on('connect', () => {
 		e.subscribe('done').then(() => {
-			console.log('here');
+			console.log('subscribe to "done"');
 			t = new TestTask(config); // task client
 			Promise.all([
 				new Promise((resolve) => t.on('connect', () => resolve())), // wait for client to connect

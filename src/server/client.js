@@ -1,6 +1,6 @@
 
 const packet = require('../util/packet.js'),
-	{log} = require('../util/log.js');
+	logger = require('../util/logger.js');
 
 class Client {
 
@@ -26,10 +26,10 @@ class Client {
 		this.tasks = []; // task it handles
 		this.socket.on('close', () => {
 			this.destory();
-		}).on('error', (err) => console.log(err));
+		}).on('error', (err) => logger.error(err));
 		this.health = setInterval(() => {
 			if (!this.isAlive) {
-				log('client socket is dead');
+				logger.warn('client socket is dead');
 				return this.destory();
 			}
 			this.send('/ping');
@@ -112,7 +112,7 @@ class Client {
 				return this.core.channel.unsub(payload.data.channel, this);
 			}
 		} catch(e) {
-			console.log('action failed', e);
+			logger.error('action failed', e);
 		}
 		return this.destory('invalid action');
 	}
@@ -183,9 +183,11 @@ class Client {
 		if (e) {
 			await this.send('error', e);
 		}
-		console.log('close', this.key);
+		logger.log('close', this.key);
 		if (!this.dead) {
-			this.type.free(this.id);
+			if (!this.type.free(this.id)) {
+				logger.warn(`failed to free "${this.id}" for client "${this.key}"`);
+			}
 			for (let i in this.polled.data) {
 				let task = this.polled.data[i][0];
 				task.key = this.core.id();

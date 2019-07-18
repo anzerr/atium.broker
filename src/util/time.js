@@ -20,7 +20,7 @@ class Time {
 		return diff[0] * NS_PER_SEC + diff[1];
 	}
 
-	now() {
+	now() { // faster then usinge Date.now()
 		let dif = process.hrtime(this._ref.start);
 		return this._ref.epoch + (dif[0] * 1e3) + (dif[1] / 1e6);
 	}

@@ -1,5 +1,5 @@
 
-const {Task, Server} = require('../index.js'),
+const {Task, Server} = require('../../index.js'),
 	Request = require('request.libary');
 
 class TestTask extends Task {

@@ -1,5 +1,5 @@
 {
-	"name": "atium.socket",
+	"name": "atium.broker",
 	"version": "1.0.8",
 	"description": "",
 	"main": "index.js",
@@ -18,6 +18,7 @@
 		"extends": "eslint-config-basic"
 	},
 	"dependencies": {
+		"console.color": "git+https://git@github.com/anzerr/console.color.git",
 		"http.server": "git+https://git@github.com/anzerr/http.server.git",
 		"net.socket": "git+https://git@github.com/anzerr/net.socket.git",
 		"type.util": "git+https://git@github.com/anzerr/type.util.git",
@@ -25,14 +26,14 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git@github.com:anzerr/hive.socket.git"
+		"url": "git@github.com:anzerr/atium.broker.git"
 	},
 	"engines": {
 		"node": ">= 0.10.0"
 	},
 	"types": "index.d.ts",
 	"bugs": {
-		"url": "https://github.com/anzerr/hive.socket/issues"
+		"url": "https://github.com/anzerr/atium.broker/issues"
 	},
-	"homepage": "https://github.com/anzerr/hive.socket#readme"
+	"homepage": "https://github.com/anzerr/atium.broker#readme"
 }

@@ -1,5 +1,5 @@
 
-const client = require('./client.js'),
+const client = require('./example/client.js'),
 	core = require('../index.js'),
 	assert = require('assert'),
 	time = require('../src/util/time.js'),

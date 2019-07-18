@@ -1,5 +1,5 @@
 
-const core = require('../index.js');
+const core = require('../../index.js');
 
 class TestTask extends core.Task {
 

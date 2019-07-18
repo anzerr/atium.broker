@@ -19,11 +19,9 @@ class Api extends require('events') {
 	}
 
 	request(req, res) {
-		// log('http', req.url(), req.method());
 		if (req.url() === '/add' && req.method() === 'POST') {
 			return req.data().then((json) => {
 				let r = is.array(json) ? json : [json], add = 0;
-				// console.log(r);
 				for (let i in r) {
 					if (r[i] && is.array(r[i].tasks) && this.core.add(r[i])) {
 						add += r[i].tasks.length;
@@ -31,7 +29,6 @@ class Api extends require('events') {
 				}
 				return res.status(200).send(String(add));
 			}).catch((err) => {
-				console.log(err); // maybe should be a event?
 				res.status(500).send(err.toString());
 			});
 		}
