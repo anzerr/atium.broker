@@ -3,14 +3,14 @@ import * as events from 'events';
 
 declare namespace conductorSocket {
 	interface ClientConfig {
-		conductor: string;
+		api: string;
 		socket: string;
 		type: string;
         tasks: string[];
     }
 
 	interface ServerConfig {
-		conductor: string;
+		api: string;
 		socket: string;
     }
 
