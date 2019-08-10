@@ -34,6 +34,14 @@ declare namespace conductorSocket {
 
 		send(action: string, data: any): Promise<any>;
 
+		subscribe(channel: string): Promise<any>
+		sub(channel: string): Promise<any>
+
+		unsubscribe(channel: string): Promise<any>
+		unsub(channel: string): Promise<any>
+
+		event(channel: string, message: any): Promise<any>
+
 		lock(): Promise<any>;
 
 		tasks(t: any): Promise<any>;
@@ -57,6 +65,14 @@ declare namespace conductorSocket {
 		unlock(): Task;
 
 		lock(): Task;
+
+		subscribe(channel: string): Promise<any>
+		sub(channel: string): Promise<any>
+
+		unsubscribe(channel: string): Promise<any>
+		unsub(channel: string): Promise<any>
+
+		event(channel: string, message: any): Promise<any>
 
 		log(l: any[]): any;
 
