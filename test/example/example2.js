@@ -13,6 +13,7 @@ class TestTask extends Task {
 		this.on('event:done', (msg) => { // sub to done event
 			this.store[msg.n] = false;
 		});
+		this.init();
 	}
 
 	run(task) {

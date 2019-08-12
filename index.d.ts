@@ -62,6 +62,8 @@ declare namespace conductorSocket {
 
         constructor(options: ClientConfig);
 
+		init(): Promise<void>;
+
 		unlock(): Task;
 
 		lock(): Task;

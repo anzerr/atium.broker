@@ -9,6 +9,7 @@ class TestTask extends core.Task {
 			type: 'default'
 		});
 		this.set = cd;
+		this.init();
 	}
 
 	run(task) {

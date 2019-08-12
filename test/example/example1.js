@@ -12,6 +12,7 @@ class TestTask extends Task {
 		this._ran = 0;
 		this.on('event:task_done', (msg) => console.log('task done', this.who, msg));
 		this.on('event:task_other', (msg) => console.log('task_other', this.who, msg));
+		this.init();
 	}
 
 	run(task) {
