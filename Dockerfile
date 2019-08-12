@@ -3,7 +3,7 @@ FROM anzerr/node:11
 COPY . /app
 RUN apk update && \
 	apk upgrade && \
-	apk --update add --no-cache --virtual .source-tools git build-base openssh-client && \
+	apk --update add --no-cache --virtual .source-tools git build-base openssh-client findutils && \
 	cd / && \
 	cd app && \
 	npm ci && \
