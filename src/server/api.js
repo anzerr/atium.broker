@@ -41,22 +41,24 @@ class Api extends require('events') {
 			}
 			for (let i in this.core.client) {
 				let c = this.core.client[i];
-				client[c.key] = {
-					isAlive: c.isAlive,
-					dead: c.dead,
-					tasks: c.tasks,
-					polled: {
-						tick: c.polled.tick,
-						count: 0
-					}
-				};
-				for (let x in c.polled.data) {
-					if (c.polled.data[x]) {
-						client[c.key].polled.count += 1;
+				if (c) {
+					client[c.key] = {
+						isAlive: c.isAlive,
+						dead: c.dead,
+						tasks: c.tasks,
+						polled: {
+							tick: c.polled.tick,
+							count: 0
+						}
+					};
+					for (let x in c.polled.data) {
+						if (c.polled.data[x]) {
+							client[c.key].polled.count += 1;
+						}
 					}
 				}
 			}
-			return res.status(200).json({pool: m, client: client});
+			return res.status(200).json({pool: m, client: client}, true);
 		}
 		return res.status(200).send('Ok');
 	}
