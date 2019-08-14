@@ -78,7 +78,7 @@ declare namespace conductorSocket {
 
 		log(l: any[]): any;
 
-		run(task: any): Promise<object>
+		run(task: any): Promise<any | void>
 
 		close(): void
 
