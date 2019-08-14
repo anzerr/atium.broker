@@ -8,7 +8,7 @@ class Log {
 	}
 
 	log(...arg) {
-		console.log(`${color.green('Atiume')}:${color.white(this.id++)}:${color.white((new Date()).toUTCString())} -`, ...arg);
+		console.log(`${color.green('Atium')}:${color.white(this.id++)}:${color.white((new Date()).toUTCString())} -`, ...arg);
 	}
 	warn(...arg) {
 		return this.log(...arg.map((a) => color.yellow(a)));
