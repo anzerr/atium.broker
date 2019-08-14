@@ -90,7 +90,7 @@ class Core {
 
 	addTask(task) {
 		for (let i in this.client) {
-			if (this.client[i].valid(task.task)) {
+			if (this.client[i] && this.client[i].valid(task.task)) {
 				this.client[i].isLocked = true;
 				return this.client[i].runTask(task);
 			}

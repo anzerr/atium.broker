@@ -29,6 +29,7 @@ class Api extends require('events') {
 				}
 				return res.status(200).send(String(add));
 			}).catch((err) => {
+				this.emit('log', err);
 				res.status(500).send(err.toString());
 			});
 		}
