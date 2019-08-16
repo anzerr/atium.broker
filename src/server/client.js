@@ -189,10 +189,12 @@ class Client {
 				logger.warn(`failed to free "${this.id}" for client "${this.key}"`);
 			}
 			for (let i in this.polled.data) {
-				let task = this.polled.data[i][0];
-				task.key = this.core.id();
-				this.core.addTask(task);
-				clearTimeout(this.polled[i][1]);
+				if (this.polled.data[i]) {
+					let task = this.polled.data[i][0];
+					task.key = this.core.id();
+					this.core.addTask(task);
+					clearTimeout(this.polled[i][1]);
+				}
 			}
 		}
 		for (let i in this.channel) {
