@@ -36,7 +36,7 @@ class Task extends require('events') {
 				}
 			}).on('event', (data) => {
 				return this.emit(`event:${data.channel}`, data.message);
-			}).on('log', (l) => this.log(l)).on('error', (e) => this.log(['error', e]));
+			}).on('log', (l) => this.log(l)).on('error', (e) => this.log(['error', ...e]));
 		});
 	}
 

@@ -24,7 +24,7 @@ class Client extends require('events') {
 			clearInterval(this.health);
 			this.health = setInterval(() => {
 				if (!this.isAlive) {
-					this.emit('error', new Error('server socket is dead'));
+					this.emit('error', [new Error('server socket is dead')]);
 					return this.close();
 				}
 				this.isAlive = false;
@@ -40,12 +40,12 @@ class Client extends require('events') {
 					if (payload.action === '/ping') {
 						this.isAlive = true;
 						this.emit('ping');
-						return this.send('/pong').catch((e) => this.emit('error', e));
+						return this.send('/pong').catch((e) => this.emit('error', [e]));
 					}
 					if (payload.action === '/who') {
 						this.id = payload.data;
 						this.emit('connect', this.id);
-						return this.send('/tasks', this.config.tasks || []).catch((e) => this.emit('error', e));
+						return this.send('/tasks', this.config.tasks || []).catch((e) => this.emit('error', [e]));
 					}
 					if (payload.action === '/run') {
 						return this.emit('run', payload.data);
@@ -53,9 +53,9 @@ class Client extends require('events') {
 					if (payload.action === '/event') {
 						return this.emit('event', payload.data);
 					}
-					this.emit('error', `action not supported "${payload.action}"`);
+					this.emit('error', [`action not supported "${payload.action}"`]);
 				} catch(e) {
-					this.emit('error', e);
+					this.emit('error', [e, res]);
 				}
 			});
 			this.who();
