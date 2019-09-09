@@ -1,5 +1,9 @@
 
 ### `Intro`
+![GitHub Actions status | linter](https://github.com/anzerr/atium.broker/workflows/linter/badge.svg)
+![GitHub Actions status | publish](https://github.com/anzerr/atium.broker/workflows/publish/badge.svg)
+![GitHub Actions status | test](https://github.com/anzerr/atium.broker/workflows/test/badge.svg)
+
 Light weight in memory message broker. There are no stat logging for task. Tasks are run
 in the order they arrive/complete. There is still work that can be done at the moment it handles around 10k tasks a sec.
 
