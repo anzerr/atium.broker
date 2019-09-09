@@ -5,13 +5,13 @@
 	"main": "index.js",
 	"scripts": {
 		"linter": "eslint src/**",
+		"example": "node test/example/example1.js",
 		"test": "node test/index.js && node test/index.js fast"
 	},
 	"keywords": [],
 	"author": "anzerr",
 	"license": "MIT",
 	"devDependencies": {
-		"eslint": "5.11.1",
 		"request.libary": "git+https://git@github.com/anzerr/request.libary.git",
 		"eslint-config-basic": "git+https://git@github.com/anzerr/eslintrc.git"
 	},

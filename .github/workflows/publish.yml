@@ -31,7 +31,7 @@ jobs:
           node-version: 12
           registry-url: https://registry.npmjs.org/
       - run: npm i -g git+https://git@github.com/anzerr/gha.cli.git && gha scope
-      - run: npm publish
+      - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm}}
 
@@ -46,6 +46,6 @@ jobs:
           registry-url: https://npm.pkg.github.com/
           scope: '@anzerr'
       - run: npm i -g git+https://git@github.com/anzerr/gha.cli.git && gha scope
-      - run: npm publish
+      - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
