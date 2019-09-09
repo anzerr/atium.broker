@@ -4,7 +4,8 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"test": "node test/index.js"
+		"linter": "eslint src/**",
+		"test": "node test/index.js && node test/index.js fast"
 	},
 	"keywords": [],
 	"author": "anzerr",

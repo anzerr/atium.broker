@@ -73,7 +73,10 @@ class Client extends require('events') {
 	}
 
 	sub(channel) {
-		return this.send('/sub', {channel: channel});
+		if (typeof channel === 'string') {
+			return this.send('/sub', {channel: channel});
+		}
+		throw new Error('can\'t unsub event without a channel');
 	}
 
 	subscribe(...arg) {
@@ -81,7 +84,10 @@ class Client extends require('events') {
 	}
 
 	unsub(channel) {
-		this.send('/unsub', {channel: channel});
+		if (typeof channel === 'string') {
+			return this.send('/unsub', {channel: channel});
+		}
+		throw new Error('can\'t unsub event without a channel');
 	}
 
 	unsubscribe(...arg) {
@@ -89,7 +95,10 @@ class Client extends require('events') {
 	}
 
 	event(channel, message) {
-		return this.send('/event', {channel: channel, message: message});
+		if (typeof channel === 'string') {
+			return this.send('/event', {channel: channel, message: message || {}});
+		}
+		throw new Error('can\'t send event without a channel');
 	}
 
 	lock() {

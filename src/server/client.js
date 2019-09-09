@@ -98,8 +98,8 @@ class Client {
 				}
 				return;
 			}
-			if (payload.action === '/event' && payload.data.channel && payload.data.message) {
-				return this.core.channel.send(payload.data.channel, payload.data.message, this);
+			if (payload.action === '/event' && payload.data.channel) {
+				return this.core.channel.send(payload.data.channel, payload.data.message || {}, this);
 			}
 			if (payload.action === '/sub') {
 				this.channel[payload.data.channel] = true;
@@ -111,6 +111,7 @@ class Client {
 				}
 				return this.core.channel.unsub(payload.data.channel, this);
 			}
+			logger.error('invalid action', payload);
 		} catch(e) {
 			logger.error('action failed', e);
 		}
@@ -181,7 +182,11 @@ class Client {
 
 	async destory(e) {
 		if (e) {
-			await this.send('error', e);
+			try {
+				await this.send('error', e);
+			} catch(err) {
+				// fuck it
+			}
 		}
 		logger.log('close', this.key);
 		if (!this.dead) {
@@ -193,7 +198,7 @@ class Client {
 					let task = this.polled.data[i][0];
 					task.key = this.core.id();
 					this.core.addTask(task);
-					clearTimeout(this.polled[i][1]);
+					clearTimeout(this.polled.data[i][1]);
 				}
 			}
 		}
