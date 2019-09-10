@@ -16,4 +16,4 @@ RUN apk update && \
 FROM anzerr/node:slim-11
 COPY --from=0 /app /app
 WORKDIR /app
-ENTRYPOINT ["node", "server.js"]
+ENTRYPOINT ["node", "bin/server.js"]

@@ -1,0 +1,22 @@
+name: docker
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: anzerr/docker.action@master
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: docker.pkg.github.com
+      - run: docker build -t $(gha name) -t $(gha name --version latest) .
+      - run: docker push $(gha name) $(gha name --version latest)
