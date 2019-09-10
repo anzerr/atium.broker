@@ -19,6 +19,6 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           registry: docker.pkg.github.com
           args: |
-            docker build -t $(gha name) -t $(gha name --version latest) . &&
+            docker build -t ${INPUT_REGISTRY}/$(gha name) -t ${INPUT_REGISTRY}/$(gha name --version latest) . &&
             docker push ${INPUT_REGISTRY}/$(gha name) &&
             docker push ${INPUT_REGISTRY}/$(gha name --version latest)
