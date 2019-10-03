@@ -1,17 +1,17 @@
 
-const Client = require('./client.js'),
-	logger = require('./util/logger.js');
+const Client = require('./client/client.js'),
+	Event = require('./event.js');
 
-class Task extends require('events') {
+class Task extends Event {
 
 	constructor(config) {
-		super();
-		this.config = config;
+		super(config);
 	}
 
 	init() {
 		return new Promise((resolve) => {
 			this._client = new Client(this.config);
+			this._client.reconnect();
 			this._map = [];
 			this._lock = false;
 			this.log(['config', this.config]);
@@ -50,42 +50,6 @@ class Task extends require('events') {
 		this.log(['lock']);
 		this._lock = true;
 		return this._client.lock();
-	}
-
-	sub(...arg) {
-		return this._client.sub(...arg);
-	}
-
-	subscribe(...arg) {
-		return this._client.subscribe(...arg);
-	}
-
-	unsub(...arg) {
-		return this._client.unsub(...arg);
-	}
-
-	unsubscribe(...arg) {
-		return this._client.unsubscribe(...arg);
-	}
-
-	event(...arg) {
-		return this._client.event(...arg);
-	}
-
-	log(l) {
-		if (this.config.log) {
-			return logger.log(...l);
-		}
-	}
-
-	run() {
-		throw new Error('run needs to overloaded');
-	}
-
-	close() {
-		this.closed = true;
-		this._client.close();
-		this.id = null;
 	}
 
 }

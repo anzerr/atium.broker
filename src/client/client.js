@@ -1,6 +1,6 @@
 
 const net = require('net.socket'),
-	packet = require('./util/packet.js');
+	packet = require('../util/packet.js');
 
 class Client extends require('events') {
 
@@ -11,10 +11,19 @@ class Client extends require('events') {
 		}
 		this.config = config;
 		this.id = null;
-		this.reconnect();
 	}
 
 	reconnect() {
+		this.connect();
+		this.c.on('connect', () => {
+			this.emit('log', ['connected']);
+			this.bindMessage().who();
+		}).on('close', () => {
+			this.emit('close');
+		});
+	}
+
+	connect() {
 		if (this.c) {
 			this.c.removeAllListeners(['connect', 'message', 'close']);
 			this.c.close();
@@ -31,37 +40,35 @@ class Client extends require('events') {
 			}, 60 * 1000);
 		});
 		this.c = new net.Client(this.config.socket);
-		this.c.on('connect', () => {
-			this.emit('log', ['connected']);
-			this.c.on('message', (res) => {
-				try {
-					let payload = packet.parse(res);
-					this.emit('log', ['payload recived', payload]);
-					if (payload.action === '/ping') {
-						this.isAlive = true;
-						this.emit('ping');
-						return this.send('/pong').catch((e) => this.emit('error', [e]));
-					}
-					if (payload.action === '/who') {
-						this.id = payload.data;
-						this.emit('connect', this.id);
-						return this.send('/tasks', this.config.tasks || []).catch((e) => this.emit('error', [e]));
-					}
-					if (payload.action === '/run') {
-						return this.emit('run', payload.data);
-					}
-					if (payload.action === '/event') {
-						return this.emit('event', payload.data);
-					}
-					this.emit('error', [`action not supported "${payload.action}"`]);
-				} catch(e) {
-					this.emit('error', [e, res]);
+	}
+
+	bindMessage() {
+		this.c.on('message', (res) => {
+			try {
+				let payload = packet.parse(res);
+				this.emit('log', ['payload recived', payload]);
+				if (payload.action === '/ping') {
+					this.isAlive = true;
+					this.emit('ping');
+					return this.send('/pong').catch((e) => this.emit('error', [e]));
 				}
-			});
-			this.who();
-		}).on('close', () => {
-			this.emit('close');
+				if (payload.action === '/who') {
+					this.id = payload.data;
+					this.emit('connect', this.id);
+					return this.send('/tasks', this.config.tasks || []).catch((e) => this.emit('error', [e]));
+				}
+				if (payload.action === '/run') {
+					return this.emit('run', payload.data);
+				}
+				if (payload.action === '/event') {
+					return this.emit('event', payload.data);
+				}
+				this.emit('error', [`action not supported "${payload.action}"`]);
+			} catch(e) {
+				this.emit('error', [e, res]);
+			}
 		});
+		return this;
 	}
 
 	send(a, d = null) {

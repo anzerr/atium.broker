@@ -30,7 +30,7 @@ npm install --save git+https://git@github.com/anzerr/atium.broker.git
 Example of a task
 ``` javascript
 
-const {Task, Server} = require('atium.broker'),
+const {Task, Server, Event} = require('atium.broker'),
 	Request = require('request.libary');
 
 class TestTask extends Task {
@@ -94,6 +94,16 @@ class TestTask extends Task {
 			]
 		});
 	}
+
+	const eventClient = new Event(config); // event client without tasks handling 
+	eventClient.init().then(() => {
+		eventClient.subscribe('done');
+
+		eventClient.on('event:done', (msg) => {
+			console.log(msg);
+		});
+	});
+
 	e.on('connect', () => {
 		e.subscribe('done').then(() => {
 			console.log('subscribe to "done"');
