@@ -57,7 +57,7 @@ declare namespace conductorSocket {
 	class Event extends events {
 
 		config: ClientConfig;
-		private _client: any;
+		_client: any;
 
         constructor(options: ClientConfig);
 
@@ -79,9 +79,7 @@ declare namespace conductorSocket {
 
 	class Task extends Event {
 
-		config: ClientConfig;
 		who: string;
-		private _client: any;
 
         constructor(options: ClientConfig);
 
