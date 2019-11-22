@@ -54,19 +54,14 @@ declare namespace conductorSocket {
 
 	}
 
-	class Task extends events {
+	class Event extends events {
 
 		config: ClientConfig;
-		who: string;
-		private _client: any;
+		_client: any;
 
         constructor(options: ClientConfig);
 
 		init(): Promise<void>;
-
-		unlock(): Task;
-
-		lock(): Task;
 
 		subscribe(channel: string): Promise<any>
 		sub(channel: string): Promise<any>
@@ -78,9 +73,19 @@ declare namespace conductorSocket {
 
 		log(l: any[]): any;
 
-		run(task: any): Promise<any | void>
-
 		close(): void
+
+	}
+
+	class Task extends Event {
+
+		who: string;
+
+        constructor(options: ClientConfig);
+
+		unlock(): Task;
+		lock(): Task;
+		run(task: any): Promise<any | void>
 
 	}
 
