@@ -28,17 +28,19 @@ const metric = () => {
 	});
 };
 
-const send = (task) => {
+const send = (task, size) => {
 	let last = '';
 	return new Request(`http://${config.api}`).json(task).post('/add').then((res) => {
 		last = res.body().toString();
 		assert.equal(res.status(), 200);
-		assert.equal(last, `${done.part * done.tasks}`);
+		assert.equal(last, size || `${done.part * done.tasks}`);
 	}).catch((e) => {
 		console.log(e, last);
 		process.exit(1);
 	});
 };
+
+const clientList = [];
 
 console.log('started server');
 new core.Server(config);
@@ -70,7 +72,7 @@ for (let i = 0; i < done.runs; i++) {
 }
 
 let start = process.hrtime();
-setInterval(() => {
+let interval = setInterval(() => {
 	let missing = 0, max = done.runs * done.part * done.tasks;
 	for (let i = 0; i < max; i++) {
 		if (!done.set[i + 1]) {
@@ -83,8 +85,10 @@ setInterval(() => {
 	}
 
 	return metric().then((res) => {
-		assert.equal(res.pool.live, 0);
-		assert.equal(res.pool.next, 0);
+		assert.equal(res.pool.live.length, 0);
+		assert.equal(typeof res.pool.live.info, 'object');
+		assert.equal(res.pool.next.length, 0);
+		assert.equal(typeof res.pool.next.info, 'object');
 		assert.equal(Object.keys(res.client).length, done.tasks);
 		for (let i in res.client) {
 			assert.equal(res.client[i].isAlive, true);
@@ -98,6 +102,7 @@ setInterval(() => {
 		} else {
 			throw new Error('something is wrong');
 		}
+		clearInterval(interval);
 	}).catch((err) => {
 		console.log(err);
 		process.exit(1);
@@ -112,11 +117,12 @@ Promise.all(wait).then(() => {
 	let worker = [];
 	for (let i = 0; i < done.max; i++) {
 		worker.push(new Promise((resolve) => {
-			client(config, (n) => done.set[n] = true)
+			let c = client(config, (n) => done.set[n] = true)
 				.on('event:task_done', (msg) => {
 					assert.equal((Object.keys(msg).length === 0 || typeof msg.task.stuff === 'number'), true);
 				})
 				.on('connect', () => resolve());
+			clientList.push(c);
 		}));
 	}
 	return Promise.all(worker);

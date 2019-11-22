@@ -17,7 +17,8 @@ let str = {
 		'/next': 13,
 		'/ok': 14,
 		'/sub': 15,
-		'/unsub': 16
+		'/unsub': 16,
+		'/kill': 17
 	}, code = {};
 
 for (let i in str) {
@@ -27,7 +28,6 @@ for (let i in str) {
 module.exports = {
 	ACTION: str,
 	CODE: code,
-
 	POOL: {
 		LIFE: 1000 * 60 * 10,
 		TICK: 1000 * 20,

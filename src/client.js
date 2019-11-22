@@ -53,6 +53,9 @@ class Client extends require('events') {
 					if (payload.action === '/event') {
 						return this.emit('event', payload.data);
 					}
+					if (payload.action === '/kill') {
+						return this.emit('kill', payload.data);
+					}
 					this.emit('error', [`action not supported "${payload.action}"`]);
 				} catch(e) {
 					this.emit('error', [e, res]);

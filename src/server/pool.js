@@ -19,6 +19,13 @@ class Pool {
 		return c;
 	}
 
+	get info() {
+		let c = {};
+		for (let i in this._pool) {
+			c[i] = this._pool[i].length;
+		}
+		return c;
+	}
 
 	clean() {
 		let now = time.now(), o = {};

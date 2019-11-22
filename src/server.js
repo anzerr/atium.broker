@@ -54,6 +54,11 @@ class Core {
 		this._id = 0;
 	}
 
+	logger(n) {
+		logger.level = n;
+		return this;
+	}
+
 	id() {
 		// return `${Math.random().toString(36).substr(2)}:${this._id++}`;
 		return this._id++;

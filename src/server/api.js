@@ -37,7 +37,10 @@ class Api extends require('events') {
 			let m = {}, client = {};
 			for (let i in this.core.pool) {
 				if (this.core.pool[i]) {
-					m[i] = this.core.pool[i].length;
+					m[i] = {
+						length: this.core.pool[i].length,
+						info: this.core.pool[i].info
+					};
 				}
 			}
 			for (let i in this.core.client) {

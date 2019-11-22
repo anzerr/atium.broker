@@ -1,5 +1,6 @@
 
 const Client = require('./client.js'),
+	is = require('type.util'),
 	logger = require('./util/logger.js');
 
 class Task extends require('events') {
@@ -7,6 +8,9 @@ class Task extends require('events') {
 	constructor(config) {
 		super();
 		this.config = config;
+		if (this.config.log && is.function(this.config.log)) {
+			this.log = (l) => this.config.log(...l);
+		}
 	}
 
 	init() {
@@ -34,6 +38,8 @@ class Task extends require('events') {
 				if (!this.closed) {
 					this._client.reconnect();
 				}
+			}).on('kill', () => {
+				this.emit('kill');
 			}).on('event', (data) => {
 				return this.emit(`event:${data.channel}`, data.message);
 			}).on('log', (l) => this.log(l)).on('error', (e) => this.log(['error', ...e]));

@@ -161,6 +161,7 @@ class Client {
 			task,
 			setTimeout(() => {
 				task.key = this.core.id();
+				logger.warn(`task "${task.key}" acknowledgement has timeouted after ${task.timeout}ms task is being re-pooled`);
 				this.core.addTask(task);
 			}, task.timeout)
 		];
