@@ -1,19 +1,29 @@
 {
 	"name": "atium.broker",
 	"version": "1.0.24",
-	"description": "",
+	"description": "Light weight in memory message broker.",
+	"keywords": [
+		"message-broker",
+		"nodejs",
+		"task",
+		"util"
+	],
+	"homepage": "https://github.com/anzerr/atium.broker#readme",
+	"bugs": {
+		"url": "https://github.com/anzerr/atium.broker/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:anzerr/atium.broker.git"
+	},
+	"license": "MIT",
+	"author": "anzerr",
 	"main": "index.js",
+	"types": "index.d.ts",
 	"scripts": {
 		"linter": "eslint src/**",
 		"example": "node test/example/example1.js",
 		"test": "node test/index.js && node test/index.js fast"
-	},
-	"keywords": [],
-	"author": "anzerr",
-	"license": "MIT",
-	"devDependencies": {
-		"request.libary": "git+https://git@github.com/anzerr/request.libary.git",
-		"eslint-config-basic": "git+https://git@github.com/anzerr/eslintrc.git"
 	},
 	"eslintConfig": {
 		"extends": "eslint-config-basic"
@@ -25,16 +35,11 @@
 		"type.util": "git+https://git@github.com/anzerr/type.util.git",
 		"unique.util": "git+https://git@github.com/anzerr/unique.util.git"
 	},
-	"repository": {
-		"type": "git",
-		"url": "git@github.com:anzerr/atium.broker.git"
+	"devDependencies": {
+		"request.libary": "git+https://git@github.com/anzerr/request.libary.git",
+		"eslint-config-basic": "git+https://git@github.com/anzerr/eslintrc.git"
 	},
 	"engines": {
 		"node": ">= 0.10.0"
-	},
-	"types": "index.d.ts",
-	"bugs": {
-		"url": "https://github.com/anzerr/atium.broker/issues"
-	},
-	"homepage": "https://github.com/anzerr/atium.broker#readme"
+	}
 }
