@@ -19,6 +19,11 @@ declare namespace conductorSocket {
 		type: string;
 		tasks: string[];
 		api?: string;
+	}
+	
+	interface ClientEventConfig {
+		socket: string;
+		api?: string;
     }
 
 	interface ServerConfig {
@@ -77,10 +82,10 @@ declare namespace conductorSocket {
 
 	class Event extends events {
 
-		config: ClientConfig;
+		config: ClientEventConfig;
 		_client: any;
 
-        constructor(options: ClientConfig);
+        constructor(options: ClientEventConfig);
 
 		init(): Promise<void>;
 
