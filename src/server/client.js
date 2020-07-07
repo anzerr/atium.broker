@@ -1,6 +1,5 @@
 
-const packet = require('../util/packet.js'),
-	logger = require('../util/logger.js');
+const packet = require('../util/packet.js');
 
 class Client {
 
@@ -10,6 +9,10 @@ class Client {
 
 	get pool() {
 		return this.core.pool;
+	}
+
+	get logger() {
+		return this.core.logger;
 	}
 
 	constructor(core, socket) {
@@ -26,10 +29,10 @@ class Client {
 		this.tasks = []; // task it handles
 		this.socket.on('close', () => {
 			this.destory();
-		}).on('error', (err) => logger.error(err));
+		}).on('error', (err) => this.logger.error(err));
 		this.health = setInterval(() => {
 			if (!this.isAlive) {
-				logger.warn('client socket is dead');
+				this.logger.warn('client socket is dead');
 				return this.destory();
 			}
 			this.send('/ping');
@@ -111,9 +114,9 @@ class Client {
 				}
 				return this.core.channel.unsub(payload.data.channel, this);
 			}
-			logger.error('invalid action', payload);
+			this.logger.error('invalid action', payload);
 		} catch(e) {
-			logger.error('action failed', e);
+			this.logger.error('action failed', e);
 		}
 		return this.destory('invalid action');
 	}
@@ -161,7 +164,7 @@ class Client {
 			task,
 			setTimeout(() => {
 				task.key = this.core.id();
-				logger.warn(`task "${task.key}" acknowledgement has timeouted after ${task.timeout}ms task is being re-pooled`);
+				this.logger.warn(`task "${task.key}" acknowledgement has timeouted after ${task.timeout}ms task is being re-pooled`);
 				this.core.addTask(task);
 			}, task.timeout)
 		];
@@ -189,10 +192,10 @@ class Client {
 				// fuck it
 			}
 		}
-		logger.log('close', this.key);
+		this.logger.log('close', this.key);
 		if (!this.dead) {
 			if (!this.type.free(this.id)) {
-				logger.warn(`failed to free "${this.id}" for client "${this.key}"`);
+				this.logger.warn(`failed to free "${this.id}" for client "${this.key}"`);
 			}
 			for (let i in this.polled.data) {
 				if (this.polled.data[i]) {

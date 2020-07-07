@@ -40,4 +40,4 @@ class Log {
 
 }
 
-module.exports = new Log();
+module.exports = Log;

@@ -3,7 +3,7 @@ const net = require('net.socket'),
 	Client = require('./server/client.js'),
 	Type = require('./server/type.js'),
 	packet = require('./util/packet.js'),
-	logger = require('./util/logger.js'),
+	Logger = require('./util/logger.js'),
 	is = require('type.util'),
 	Pool = require('./server/pool.js'),
 	ENUM = require('./util/enum.js'),
@@ -13,7 +13,8 @@ const net = require('net.socket'),
 class Core {
 
 	constructor(config) {
-		logger.log('creating server', config);
+		this.logger = config.logger || new Logger();
+		this.logger.log('creating server', config);
 		this.socket = new net.Server(config.socket);
 		this.type = new Type();
 
@@ -22,7 +23,7 @@ class Core {
 			core: this
 		});
 		this.api.create().then(() => {
-			logger.log('started http server');
+			this.logger.log('started http server');
 		});
 
 		this.channel = new Channel();
@@ -33,7 +34,7 @@ class Core {
 		};
 		this.client = {};
 		this.socket.on('open', () => {
-			logger.log('tcp server started with config', config);
+			this.logger.log('tcp server started with config', config);
 		}).on('connect', (client) => {
 			let k = client.id();
 			if (!this.client[k]) {
@@ -48,25 +49,19 @@ class Core {
 					this.client[k].action(packet.parse(res.payload));
 				}
 			} catch(e) {
-				logger.log(e);
+				this.logger.error(e);
 			}
 		});
 		this._id = 0;
 	}
 
-	logger(n) {
-		logger.level = n;
-		return this;
-	}
-
 	id() {
-		// return `${Math.random().toString(36).substr(2)}:${this._id++}`;
 		return this._id++;
 	}
 
 	add(workload) {
 		if (!workload || !is.array(workload.tasks)) {
-			logger.log('failed missing something', workload);
+			this.logger.warn('failed missing something', workload);
 			return false;
 		}
 		for (let i in workload.tasks) {
@@ -75,7 +70,7 @@ class Core {
 				t.key = this.id();
 				t.timeout = (t.timeout || ENUM.TIMEOUT);
 			} else {
-				logger.log('failed missing something', t);
+				this.logger.warn('failed missing something', t);
 				return false;
 			}
 		}

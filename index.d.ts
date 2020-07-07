@@ -2,19 +2,40 @@
 import * as events from 'events';
 
 declare namespace conductorSocket {
+
+	interface Logger {
+		level: number;
+		log(...arg: any): void;
+		trace(...arg: any): void;
+		debug(...arg: any): void;
+		info(...arg: any): void;
+		warn(...arg: any): void;
+		error(...arg: any): void;
+		fatal(...arg: any): void;
+	}
+
 	interface ClientConfig {
 		api: string;
 		socket: string;
 		type: string;
-        tasks: string[];
+		tasks: string[];
+		logger?: any | Logger;
     }
 
 	interface ServerConfig {
 		api: string;
 		socket: string;
-    }
+	}
+	
+	class ServerChannel {
+
+		send(shard: string, message: any): Promise<void>
+
+	}
 
 	class Server {
+
+		channel: ServerChannel;
 
         constructor(options: ServerConfig);
 
