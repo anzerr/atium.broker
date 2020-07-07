@@ -15,16 +15,16 @@ declare namespace conductorSocket {
 	}
 
 	interface ClientConfig {
-		api: string;
 		socket: string;
 		type: string;
 		tasks: string[];
-		logger?: any | Logger;
+		api?: string;
     }
 
 	interface ServerConfig {
-		api: string;
 		socket: string;
+		api?: string;
+		logger?: any | Logger;
 	}
 	
 	class ServerChannel {

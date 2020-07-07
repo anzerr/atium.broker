@@ -18,13 +18,15 @@ class Core {
 		this.socket = new net.Server(config.socket);
 		this.type = new Type();
 
-		this.api = new Api({
-			host: config.api,
-			core: this
-		});
-		this.api.create().then(() => {
-			this.logger.log('started http server');
-		});
+		if (config.api) {
+			this.api = new Api({
+				host: config.api,
+				core: this
+			});
+			this.api.create().then(() => {
+				this.logger.log('started http server');
+			});
+		}
 
 		this.channel = new Channel();
 
