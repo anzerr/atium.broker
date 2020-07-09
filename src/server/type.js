@@ -18,10 +18,12 @@ class Type {
 	}
 
 	free(id) {
-		let i = id.split(':');
-		if (this.map[i[0]][id]) {
-			this.map[i[0]][id] = null;
-			return true;
+		if (id) {
+			let i = id.split(':');
+			if (this.map[i[0]][id]) {
+				this.map[i[0]][id] = null;
+				return true;
+			}
 		}
 		return false;
 	}
