@@ -64,6 +64,41 @@ class Api extends require('events') {
 			}
 			return res.status(200).json({pool: m, client: client}, true);
 		}
+		if (req.url() === '/metric/pool' && req.method() === 'GET') {
+			let m = {};
+			for (let i in this.core.pool) {
+				if (this.core.pool[i]) {
+					m[i] = {
+						length: this.core.pool[i].length,
+						info: this.core.pool[i].info
+					};
+				}
+			}
+			return res.status(200).json(m);
+		}
+		if (req.url() === '/metric/client' && req.method() === 'GET') {
+			let client = {};
+			for (let i in this.core.client) {
+				let c = this.core.client[i];
+				if (c) {
+					client[c.key] = {
+						isAlive: c.isAlive,
+						dead: c.dead,
+						tasks: c.tasks,
+						polled: {
+							tick: c.polled.tick,
+							count: 0
+						}
+					};
+					for (let x in c.polled.data) {
+						if (c.polled.data[x]) {
+							client[c.key].polled.count += 1;
+						}
+					}
+				}
+			}
+			return res.status(200).json(client);
+		}
 		return res.status(200).send('Ok');
 	}
 
