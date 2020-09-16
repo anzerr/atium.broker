@@ -40,6 +40,7 @@ class Client extends require('events') {
 			}, 60 * 1000);
 		});
 		this.c = new net.Client(this.config.socket);
+		this.c.on('error', (err) => this.emit('error', err));
 	}
 
 	bindMessage() {

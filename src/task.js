@@ -23,6 +23,8 @@ class Task extends Event {
 				this.who = who;
 				this.emit('connect');
 				resolve();
+			}).on('error', (err) => {
+				this.emit('error', err);
 			}).on('run', (task) => {
 				this._client.send('/ok', {key: task.key});
 				this.lock()

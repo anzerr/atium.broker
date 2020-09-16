@@ -21,6 +21,8 @@ class Event extends require('events') {
 			this._client.on('connect', () => {
 				this.emit('connect');
 				resolve();
+			}).on('error', (err) => {
+				this.emit('error', err);
 			}).on('close', () => {
 				if (!this.closed) {
 					this._client.reconnect();
