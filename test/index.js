@@ -1,13 +1,16 @@
 
-const client = require('./example/client.js'),
+const client = require('./client/default.js'),
+	timeoutClient = require('./client/timeout.js'),
 	core = require('../index.js'),
 	assert = require('assert'),
 	time = require('../src/util/time.js'),
 	Request = require('request.libary');
 
+const port = Math.floor(Math.random() * 500) + 1500;
+
 const config = {
-	socket: 'localhost:3001',
-	api: 'localhost:3002',
+	socket: `localhost:${port}`,
+	api: `localhost:${port + 1}`,
 	tasks: ['task_10001'],
 	log: false,
 	fast: process.argv[2] === 'fast'
@@ -32,8 +35,8 @@ const send = (task, size) => {
 	let last = '';
 	return new Request(`http://${config.api}`).json(task).post('/add').then((res) => {
 		last = res.body().toString();
-		assert.equal(res.status(), 200);
-		assert.equal(last, size || `${done.part * done.tasks}`);
+		assert.strictEqual(res.status(), 200);
+		assert.strictEqual(last, size || `${done.part * done.tasks}`);
 	}).catch((e) => {
 		console.log(e, last);
 		process.exit(1);
@@ -41,10 +44,34 @@ const send = (task, size) => {
 };
 
 console.log('started server');
-new core.Server(config);
+const server = new core.Server(config);
+if (!config.fast) {
+	server.logger.level = 7;
+}
 
 const eventClient = new core.Event(config);
-eventClient.init().then(() => {
+new Promise((resolve, reject) => {
+	const client = timeoutClient(config)
+		.on('connect', () => {
+			send([
+				{tasks: [{task: 'timeout', timeout: 2000, input: {stuff: 1}}]}
+			], '1').then(() => {
+				setTimeout(() => {
+					client.close();
+					metric().then((res) => {
+						console.log(res.pool.live);
+						assert.strictEqual(res.pool.live.length <= 1, true);
+						resolve();
+					}).catch(reject);
+				}, 10000);
+			});
+		});
+}).catch((err) => {
+	console.log(err);
+	process.exit(1);
+}).then(() => {
+	return eventClient.init();
+}).then(() => {
 	eventClient.subscribe('task_done');
 
 	const eventDone = {};
@@ -92,28 +119,30 @@ eventClient.init().then(() => {
 		}
 
 		return metric().then((res) => {
-			assert.equal(res.pool.live.length, 0);
-			assert.equal(typeof res.pool.live.info, 'object');
+			assert.strictEqual(res.pool.live.length <= 1, true);
+			assert.strictEqual(typeof res.pool.live.info, 'object');
 			for (let i in res.pool.live.info) {
-				assert.equal(res.pool.live.info[i], 0);
+				assert.strictEqual(res.pool.live.info[i] <= 1, true);
 			}
-			assert.equal(res.pool.next.length, 0);
-			assert.equal(typeof res.pool.next.info, 'object');
+
+			assert.strictEqual(res.pool.next.length, 0);
+			assert.strictEqual(typeof res.pool.next.info, 'object');
 			for (let i in res.pool.next.info) {
-				assert.equal(res.pool.next.info[i], 0);
+				assert.strictEqual(res.pool.next.info[i], 0);
 			}
-			assert.equal(Object.keys(res.client).length, done.tasks + 1);
+			
+			assert.strictEqual(Object.keys(res.client).length, done.tasks + 1);
 			for (let i in res.client) {
-				assert.equal(res.client[i].isAlive, true);
+				assert.strictEqual(res.client[i].isAlive, true);
 				if (res.client[i].tasks.length === 0) {
-					assert.equal(res.client[i].polled.tick < 1000, true);
+					assert.strictEqual(res.client[i].polled.tick < 1000, true);
 				}
 			}
 			if (!config.fast) {
 				for (let i in done.set) {
-					assert.equal(done.set[i], eventDone[i]);
+					assert.strictEqual(done.set[i], eventDone[i]);
 				}
-				assert.equal(Object.keys(done.set).length, Object.keys(eventDone).length);
+				assert.strictEqual(Object.keys(done.set).length, Object.keys(eventDone).length);
 			}
 			if (done.task && done.worker) {
 				let t = time.diff(process.hrtime(start));
@@ -138,7 +167,7 @@ eventClient.init().then(() => {
 			worker.push(new Promise((resolve) => {
 				client(config, (n) => done.set[n] = true)
 					.on('event:task_done', (msg) => {
-						assert.equal((Object.keys(msg).length === 0 || typeof msg.task.stuff === 'number'), true);
+						assert.strictEqual((Object.keys(msg).length === 0 || typeof msg.task.stuff === 'number'), true);
 					})
 					.on('connect', () => resolve());
 			}));

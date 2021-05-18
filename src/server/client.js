@@ -29,7 +29,7 @@ class Client {
 		this.tasks = []; // task it handles
 		this.socket.on('close', () => {
 			this.destory();
-		}).on('error', (err) => this.logger.error(err));
+		}).on('error', (err) => this.logger.error('socket error', err));
 		this.health = setInterval(() => {
 			if (!this.isAlive) {
 				this.logger.warn('client socket is dead');
@@ -129,8 +129,14 @@ class Client {
 		}
 	}
 
-	send(a, d) {
-		return this.socket.send(packet.stringify({action: a, data: d}));
+	send(action, data) {
+		if (this.dead) {
+			this.logger.warn(new Error('tryed to send packet when dead'));
+			return
+		}
+		return this.socket.send(packet.stringify({action, data})).catch((err) => {
+			this.logger.error('Error sending packet', err);
+		});
 	}
 
 	cancel(d) {
@@ -147,8 +153,8 @@ class Client {
 		return null;
 	}
 
-	valid(task) {
-		return this.isAlive && !this.isLocked && this.taskMap[task];
+	valid(taskName, force) {
+		return !this.dead && (!this.isLocked || force) && this.taskMap[taskName];
 	}
 
 	next(id, input) {
@@ -159,20 +165,24 @@ class Client {
 		}
 	}
 
-	runTask(task) {
-		this.polled.data[task.key] = [
-			task,
-			setTimeout(() => {
-				task.key = this.core.id();
-				this.logger.warn(`task "${task.key}" acknowledgement has timeouted after ${task.timeout}ms task is being re-pooled`);
-				this.core.addTask(task);
-			}, task.timeout)
-		];
-		let payload = {key: task.key, input: task.input};
-		if (task.next) {
-			payload.next = task.next;
+	runTask(task, force) {
+		if (this.valid(task.task, force)) {
+			const key = task.key;
+			this.polled.data[key] = [
+				task,
+				setTimeout(() => {
+					this.polled.data[key] = null;
+					task.key = this.core.id();
+					this.logger.warn(`task "${key}" acknowledgement has timeouted after ${task.timeout}ms task is being re-pooled`);
+					this.core.addTask(task);
+				}, task.timeout)
+			];
+			let payload = {key: key, input: task.input};
+			if (task.next) {
+				payload.next = task.next;
+			}
+			return this.send('/run', payload);
 		}
-		return this.send('/run', payload);
 	}
 
 	pull() {
@@ -197,6 +207,7 @@ class Client {
 			if (!this.type.free(this.id)) {
 				this.logger.warn(`failed to free "${this.id}" for client "${this.key}"`);
 			}
+
 			for (let i in this.polled.data) {
 				if (this.polled.data[i]) {
 					let task = this.polled.data[i][0];

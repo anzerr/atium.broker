@@ -94,9 +94,11 @@ class Core {
 		for (let i in this.client) {
 			if (this.client[i] && this.client[i].valid(task.task)) {
 				this.client[i].isLocked = true;
-				return this.client[i].runTask(task);
+				this.logger.debug(`task found client skip pool "${task.task}"`);
+				return this.client[i].runTask(task, true);
 			}
 		}
+		this.logger.debug(`added task to pool "${task.task}"`);
 		this.pool.live.push(task.task, task);
 	}
 

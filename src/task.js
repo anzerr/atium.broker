@@ -26,16 +26,7 @@ class Task extends Event {
 			}).on('error', (err) => {
 				this.emit('error', err);
 			}).on('run', (task) => {
-				this._client.send('/ok', {key: task.key});
-				this.lock()
-					.then(() => this.run(task.input))
-					.then((res) => {
-						let wait = [this.unlock()];
-						if (task.next) {
-							wait.push(this._client.send('/next', {next: task.next, input: res}));
-						}
-						return Promise.all(wait);
-					});
+				this.handleRun(task);
 			}).on('close', () => {
 				if (!this.closed) {
 					this._client.reconnect();
@@ -46,6 +37,19 @@ class Task extends Event {
 				return this.emit(`event:${data.channel}`, data.message);
 			}).on('log', (l) => this.log(l));
 		});
+	}
+
+	handleRun(task) {
+		this._client.send('/ok', {key: task.key});
+		this.lock()
+			.then(() => this.run(task.input))
+			.then((res) => {
+				let wait = [this.unlock()];
+				if (task.next) {
+					wait.push(this._client.send('/next', {next: task.next, input: res}));
+				}
+				return Promise.all(wait);
+			});
 	}
 
 	unlock() {
