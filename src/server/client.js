@@ -132,9 +132,9 @@ class Client {
 	send(action, data) {
 		if (this.dead) {
 			this.logger.warn(new Error('tryed to send packet when dead'));
-			return
+			return;
 		}
-		return this.socket.send(packet.stringify({action, data})).catch((err) => {
+		return this.socket.send(packet.stringify({action: action, data: data})).catch((err) => {
 			this.logger.error('Error sending packet', err);
 		});
 	}
