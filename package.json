@@ -1,6 +1,6 @@
 {
 	"name": "atium.broker",
-	"version": "1.0.40",
+	"version": "1.0.41",
 	"description": "Light weight in memory message broker.",
 	"keywords": [
 		"message-broker",
