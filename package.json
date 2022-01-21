@@ -21,12 +21,8 @@
 	"main": "index.js",
 	"types": "index.d.ts",
 	"scripts": {
-		"linter": "eslint src/**",
 		"example": "node test/example/example1.js",
 		"test": "node test/index.js && node test/index.js fast"
-	},
-	"eslintConfig": {
-		"extends": "eslint-config-basic"
 	},
 	"dependencies": {
 		"console.color": "git+https://git@github.com/anzerr/console.color.git",
@@ -36,8 +32,7 @@
 		"unique.util": "git+https://git@github.com/anzerr/unique.util.git"
 	},
 	"devDependencies": {
-		"request.libary": "git+https://git@github.com/anzerr/request.libary.git",
-		"eslint-config-basic": "git+https://git@github.com/anzerr/eslintrc.git"
+		"request.libary": "git+https://git@github.com/anzerr/request.libary.git"
 	},
 	"engines": {
 		"node": ">= 0.10.0"
